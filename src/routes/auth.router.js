@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const bcrypt = require('bcrypt');
-const User = require('../models/user.model');
 const { findUserByLogin, createUser } = require('../database');
 
 router.post('/register', async (req, res) => {
@@ -11,7 +10,7 @@ router.post('/register', async (req, res) => {
 
         if (candidate) {
 			return res.status(400).json({
-				message: 'Извините, такой login занят :('
+				message: 'Sorry, this login is already taken.'
 			});
 		}
 
@@ -25,7 +24,7 @@ router.post('/register', async (req, res) => {
 			.status(200)
 			.json({
 				user,
-				message: 'Вы успешно зарегистрировались. Поздравляем!'
+				message: 'You have successfully registered. Congratulations!'
 			});
     }catch(e) {
         console.log(e);
