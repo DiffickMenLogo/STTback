@@ -87,6 +87,23 @@ async function createAuthor(name){
   }
 }
 
+async function deleteAuthor(name){
+  try{
+    const database = client.db('database');
+    const authors = database.collection('authors');
+    const existingAuthor = await authors.findOne( name );
+    if (existingAuthor) {
+      await authors.deleteOne(name);
+      console.log(`author ${name} deleted from database`);
+    } else {
+      console.log(`This author ${name} is not exist`);
+      console.log(name);
+    }
+  }catch(e){
+    console.log(e);
+  }
+}
+
 async function getAllAuthors(){
   try{
     const database = client.db('database');
@@ -102,8 +119,16 @@ async function deleteBook(bookId) {
   try {
     const database = client.db('database');
     const books = database.collection('books');
-    const result = await books.deleteOne({_id: new ObjectId(bookId)});
-    return result;
+    const result = await books.findOne({_id: new ObjectId(bookId)})
+    await books.deleteOne({_id: new ObjectId(bookId)});
+    
+    const checkAuthor = await books.findOne({author : result.author})
+    if(checkAuthor === null){
+      await deleteAuthor({name: result.author})
+    }else{
+      console.log('author have more posts')
+    }
+    return result
   } catch (e) {
     console.error(e);
   }
@@ -129,4 +154,4 @@ async function close() {
   }
 }
 
-module.exports = { run, findUserByLogin, createUser, getAllBooks, findOneBook, deleteBook, close, createAuthor, createBook, getAllAuthors}
+module.exports = { run, findUserByLogin, createUser, getAllBooks, findOneBook, deleteBook, close, createAuthor, createBook, getAllAuthors, deleteAuthor}
